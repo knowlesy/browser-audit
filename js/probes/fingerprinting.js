@@ -166,27 +166,38 @@ export class FingerprintingProbes {
     const category = 'fingerprinting';
 
     const tzOffset = new Date().getTimezoneOffset();
-    const intlTz = Intl.DateTimeFormat().resolvedOptions().timeZone;
-    const isUtcLocked = tzOffset === 0 && (intlTz === 'UTC' || intlTz === 'Etc/UTC');
+    const intlTz = (typeof Intl !== 'undefined' && Intl.DateTimeFormat) 
+      ? Intl.DateTimeFormat().resolvedOptions().timeZone 
+      : 'Unknown';
+    const isUtcLocked = tzOffset === 0;
 
-    // Timer precision check (clamped to 100ms or 20ms under RFP/Tor vs microsecond under standard Chromium)
-    const t1 = performance.now();
-    for (let i = 0; i < 50000; i++) { Math.sqrt(i); }
-    const t2 = performance.now();
-    const timerDelta = t2 - t1;
-    const isTimerClamped = timerDelta % 20 === 0 || timerDelta % 100 === 0 || (timerDelta === 0 && Math.round(timerDelta) === timerDelta);
+    // Check Mozilla buildID RFP constant (Mozilla locks buildID to 20181001000000 under RFP)
+    // @ts-ignore
+    const buildID = navigator.buildID || '';
+    const isRFPBuildID = buildID === '20181001000000';
 
-    // Viewport rounding check (RFP rounds dimensions or letterboxes)
-    const innerW = window.innerWidth;
-    const innerH = window.innerHeight;
-    const isLetterboxed = (innerW % 200 === 0 && innerH % 100 === 0) || (screen.width === innerW && screen.height === innerH);
+    // Check platform / oscpu spoofing (In RFP, oscpu is locked to "Windows NT 10.0; Win64; x64" and platform to "Win32")
+    // @ts-ignore
+    const oscpu = navigator.oscpu || '';
+    const platform = navigator.platform || '';
+    const isRFPOscpu = oscpu === 'Windows NT 10.0; Win64; x64' && platform === 'Win32';
 
-    let rfpScore = 0;
-    if (isUtcLocked) rfpScore += 2;
-    if (isTimerClamped) rfpScore += 1;
-    if (isLetterboxed) rfpScore += 1;
+    // Check screen bounds normalisation (RFP zeroes taskbar/dock offsets)
+    const isGeometryNormalised = (screen.availWidth === screen.width) && (screen.availHeight === screen.height);
 
-    const isRFPActive = rfpScore >= 2;
+    // Check hardwareConcurrency clamping (RFP locks core count to 2)
+    const isConcurrencyClamped = navigator.hardwareConcurrency === 2;
+
+    // Collect verified RFP indicators
+    const rfpIndicators = [];
+    if (isRFPBuildID) rfpIndicators.push('Build ID Locked (20181001000000)');
+    if (isUtcLocked) rfpIndicators.push('UTC Timezone Offset (0 min)');
+    if (isRFPOscpu) rfpIndicators.push('OS/CPU Signature Spoofed (Win32/x64)');
+    if (isGeometryNormalised) rfpIndicators.push('Screen Workspace Normalised (0 Offset)');
+    if (isConcurrencyClamped) rfpIndicators.push('CPU Concurrency Clamped (2 Cores)');
+
+    // Decision: If buildID matches RFP or at least 2 strong RFP signatures are detected
+    const isRFPActive = isRFPBuildID || (isUtcLocked && (isRFPOscpu || isGeometryNormalised || isConcurrencyClamped));
 
     if (isRFPActive) {
       return {
@@ -195,47 +206,48 @@ export class FingerprintingProbes {
         category,
         status: 'pass',
         badge: 'RFP Active',
-        summary: 'Resist Fingerprinting protections detected: UTC timezone offset lock, timer quantization, and normalised metric geometry.',
+        summary: 'Firefox Resist Fingerprinting (privacy.resistFingerprinting) is actively protecting your browser. Timezone, build ID, and system metrics are standardised.',
         details: {
+          'RFP Protection': 'Active (privacy.resistFingerprinting = true)',
+          'Detected Indicators': rfpIndicators.join(' • '),
           'Timezone Offset': `${tzOffset} min (${intlTz})`,
-          'UTC Lock': 'Enforced (Offset 0)',
-          'Timer Precision': isTimerClamped ? 'Quantised / Clamped' : 'Standard',
-          'Geometry Normalisation': isLetterboxed ? 'Letterboxed / Normalised' : 'Unrounded',
-          'Status': 'Enhanced Anti-Fingerprinting Active'
+          'Build ID': buildID || 'Standardised',
+          'OS & CPU Descriptor': oscpu ? `${oscpu} (${platform})` : 'Standardised',
+          'Screen Bounds': `${screen.availWidth}×${screen.availHeight} (No Taskbar Leak)`
         }
       };
     }
 
-    if (engineInfo.isFirefox) {
+    if (engineInfo.isFirefox || engineInfo.engine === 'gecko') {
       return {
         id: probeId,
         title,
         category,
         status: 'caution',
         badge: 'RFP Inactive',
-        summary: 'Firefox Resist Fingerprinting (privacy.resistFingerprinting) is currently disabled. Your local timezone and fine-grained clock are exposed.',
+        summary: 'Firefox Resist Fingerprinting (privacy.resistFingerprinting) was not detected. Local timezone, hardware specs, and build metadata are exposed.',
         details: {
           'Timezone Offset': `${tzOffset} min (${intlTz})`,
-          'UTC Lock': 'Disabled (Local Timezone Exposed)',
-          'Timer Precision': `${timerDelta.toFixed(3)} ms (High Precision)`,
-          'Viewport Geometry': `${innerW} × ${innerH} px (Raw Window Dimensions)`
+          'UTC Lock': isUtcLocked ? 'UTC (Offset 0)' : 'Disabled (Local Timezone Exposed)',
+          'Build ID': buildID || 'Standard build',
+          'OS & CPU Descriptor': oscpu ? `${oscpu} (${platform})` : platform,
+          'Taskbar Bounds': isGeometryNormalised ? 'Normalised' : 'Exposed (Dock/Taskbar offset visible)'
         }
       };
     }
 
-    // For Chromium / WebKit
+    // For Chromium / WebKit / Others
     return {
       id: probeId,
       title,
       category,
       status: isUtcLocked ? 'pass' : 'caution',
-      badge: isUtcLocked ? 'UTC Timezone' : 'Local Timezone Exposed',
+      badge: isUtcLocked ? 'UTC Timezone' : 'Timezone Exposed',
       summary: isUtcLocked 
         ? 'Browser is normalised to UTC timezone, reducing geographic fingerprinting.'
-        : 'Local system timezone and high-resolution performance timers are directly readable by scripts.',
+        : 'Local system timezone is directly readable by scripts.',
       details: {
         'Timezone Offset': `${tzOffset} min (${intlTz})`,
-        'Timer Precision': `${timerDelta.toFixed(4)} ms (High Resolution Clock)`,
         'Screen Dimensions': `${screen.width} × ${screen.height} px`
       }
     };

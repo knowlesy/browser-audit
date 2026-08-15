@@ -30,15 +30,18 @@ export class EngineDetector {
       isFirefox = true;
       browserName = 'Mozilla Firefox';
 
+      // Check for Firefox RFP signatures
+      // @ts-ignore
+      const isRFP = (navigator.buildID === '20181001000000') || (new Date().getTimezoneOffset() === 0 && (navigator.oscpu === 'Windows NT 10.0; Win64; x64' || screen.availWidth === screen.width));
+
       if (/LibreWolf/i.test(ua)) {
         browserName = 'LibreWolf';
         isTorOrHardened = true;
       } else if (/Waterfox/i.test(ua)) {
         browserName = 'Waterfox';
-      } else if (new Date().getTimezoneOffset() === 0 && (screen.width === window.innerWidth || screen.width === 1000 || screen.width === 1920)) {
-        // Tor Browser / Hardened Firefox RFP heuristics
+      } else if (isRFP) {
         isTorOrHardened = true;
-        browserName = 'Firefox (Hardened / Tor)';
+        browserName = 'Firefox (Hardened / RFP)';
       }
     } else if (/Edg\/([0-9.]+)/i.test(ua)) {
       engine = 'chromium';
