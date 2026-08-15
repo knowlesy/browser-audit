@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="SpectreCheck is a lightweight, zero-dependency client-side auditor checking browser privacy leaks, fingerprint farbling, WebRTC IP exposure, and engine-tailored hardening configurations.">
+  <meta name="theme-color" content="#1e1e2e">
+  <meta name="referrer" content="no-referrer">
+  
+  <title>SpectreCheck — Universal Browser Privacy & Hardening Auditor</title>
+
+  <!-- Catppuccin Mocha Design System & Components -->
+  <link rel="stylesheet" href="css/catppuccin.css">
+  <link rel="stylesheet" href="css/layout.css">
+  <link rel="stylesheet" href="css/components.css">
+</head>
+<body>
+
+  <main class="app-container" role="main">
+
+    <!-- Header Section -->
+    <header class="header" role="banner">
+      <div class="brand-row">
+        <div class="brand-title-wrap">
+          <svg class="brand-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+            <path d="m9 12 2 2 4-4"/>
+          </svg>
+          <h1 class="brand-title">
+            SpectreCheck
+            <span class="brand-tag">v1.0</span>
+          </h1>
+        </div>
+        <div class="header-actions">
+          <button id="btnExport" class="btn btn-secondary" title="Export full audit report">
+            <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+              <polyline points="7 10 12 15 17 10"/>
+              <line x1="12" y1="15" x2="12" y2="3"/>
+            </svg>
+            Export Report
+          </button>
+          <button id="btnRerun" class="btn btn-primary" title="Re-run browser audit">
+            <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/>
+            </svg>
+            Re-run Audit
+          </button>
+        </div>
+      </div>
+      <p class="brand-desc">
+        Zero-telemetry client-side privacy auditor evaluating anti-fingerprinting defences, WebRTC candidate leaks, surveillance trackers, and engine-specific hardening configurations.
+      </p>
+    </header>
+
+    <!-- Client Profiling Card -->
+    <section class="profile-card" aria-label="Client Environment Profile">
+      <div class="profile-info">
+        <div class="profile-engine-row">
+          <span id="profileBrowserName" class="profile-engine-name">Detecting Browser...</span>
+          <span id="profileEngineBadge" class="profile-engine-badge">PROFILING</span>
+        </div>
+        <div id="profileMeta" class="profile-meta">Analysing rendering engine and operating system...</div>
+      </div>
+    </section>
+
+    <!-- Score Overview Hero -->
+    <section class="score-hero" aria-label="Overall Privacy Score">
+      <div class="score-dial-wrap">
+        <div class="score-dial">
+          <svg class="score-svg" viewBox="0 0 140 140" aria-hidden="true">
+            <circle class="score-circle-bg" cx="70" cy="70" r="60"/>
+            <circle id="scoreCircleProgress" class="score-circle-progress" cx="70" cy="70" r="60"/>
+          </svg>
+          <div class="score-center-text">
+            <span id="scoreGrade" class="score-grade">--</span>
+            <span id="scorePercent" class="score-percent">--% Score</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="score-breakdown-wrap">
+        <h2 id="scoreSummaryTitle" class="score-summary-title">Auditing Privacy Posture...</h2>
+        <p id="scoreSummaryDesc" class="score-summary-desc">
+          Evaluating your browser against fingerprint extraction, STUN leak vulnerabilities, tracking scripts, and peripheral API exposure.
+        </p>
+
+        <div class="score-stats-grid">
+          <div class="stat-box">
+            <span class="stat-label">Protected</span>
+            <span id="statPass" class="stat-value pass">0</span>
+          </div>
+          <div class="stat-box">
+            <span class="stat-label">Caution</span>
+            <span id="statCaution" class="stat-value caution">0</span>
+          </div>
+          <div class="stat-box">
+            <span class="stat-label">Leaking</span>
+            <span id="statFail" class="stat-value fail">0</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Audit Progress Bar (Active during scan) -->
+    <div id="progressContainer" class="audit-progress-container" aria-live="polite">
+      <div class="audit-progress-status">
+        <span id="progressLabel">Initialising privacy probes...</span>
+        <span id="progressPercent">0%</span>
+      </div>
+      <div class="audit-progress-bar">
+        <div id="progressFill" class="audit-progress-fill running"></div>
+      </div>
+    </div>
+
+    <!-- Filter Pills & Vector Controls -->
+    <section class="controls-bar" aria-label="Filter Audit Findings">
+      <div class="filter-pills" role="tablist">
+        <button class="filter-pill active" data-filter="all" role="tab" aria-selected="true">
+          All Checks <span id="filterCountAll" class="filter-pill-count">0</span>
+        </button>
+        <button class="filter-pill" data-filter="fail" role="tab" aria-selected="false">
+          Leaking <span id="filterCountFail" class="filter-pill-count">0</span>
+        </button>
+        <button class="filter-pill" data-filter="caution" role="tab" aria-selected="false">
+          Caution <span id="filterCountCaution" class="filter-pill-count">0</span>
+        </button>
+        <button class="filter-pill" data-filter="pass" role="tab" aria-selected="false">
+          Protected <span id="filterCountPass" class="filter-pill-count">0</span>
+        </button>
+      </div>
+
+      <div class="filter-pills" role="tablist">
+        <button class="filter-pill" data-filter="fingerprinting" role="tab" aria-selected="false">Fingerprinting</button>
+        <button class="filter-pill" data-filter="webrtc" role="tab" aria-selected="false">WebRTC</button>
+        <button class="filter-pill" data-filter="trackers" role="tab" aria-selected="false">Trackers</button>
+        <button class="filter-pill" data-filter="signals" role="tab" aria-selected="false">Signals</button>
+        <button class="filter-pill" data-filter="hardware" role="tab" aria-selected="false">Hardware</button>
+      </div>
+    </section>
+
+    <!-- Probe Results List -->
+    <section class="vector-section" aria-label="Audit Findings List">
+      <div id="probeList" class="probe-list">
+        <!-- Rendered dynamically by SpectreCheckApp -->
+      </div>
+      <div id="emptyResults" class="empty-results">
+        No privacy checks match the selected filter criteria.
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer" role="contentinfo">
+      <div class="footer-links">
+        <a href="https://github.com/knowlesy/browser-audit" target="_blank" rel="noopener noreferrer" class="footer-link">GitHub Repository</a>
+        <a href="docs/architecture.md" class="footer-link">Architecture & Methodology</a>
+        <a href="LICENSE" class="footer-link">MIT Licence</a>
+      </div>
+      <p>
+        Zero Tracking • Zero External Analytics • 100% Client-Side Evaluation
+      </p>
+    </footer>
+
+  </main>
+
+  <!-- Report Export Modal -->
+  <div id="modalOverlay" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 id="modalTitle" class="modal-title">Export Audit Report</h3>
+        <button id="modalClose" class="btn-ghost" aria-label="Close modal">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+
+      <div class="modal-tabs">
+        <button id="tabMarkdown" class="modal-tab active">Markdown (.md)</button>
+        <button id="tabJson" class="modal-tab">JSON (.json)</button>
+      </div>
+
+      <div class="modal-body">
+        <textarea id="reportTextarea" class="report-textarea" readonly spellcheck="false"></textarea>
+      </div>
+
+      <div class="modal-footer">
+        <button id="btnCopyReport" class="btn btn-secondary">
+          <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
+          Copy to Clipboard
+        </button>
+        <button id="btnDownloadReport" class="btn btn-primary">
+          <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Download File
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification Container -->
+  <div id="toastContainer" class="toast-container" aria-live="assertive"></div>
+
+  <!-- Application Bootstrap -->
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>
