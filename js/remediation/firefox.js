@@ -40,16 +40,18 @@ export const FirefoxRemediation = {
 
   fp_audiocontext: {
     engineName: 'Firefox / Gecko',
-    type: 'about_config',
-    risk: 'Zero Risk',
-    title: 'Restrict Web Audio & Synthetic DSP Fingerprinting',
-    description: 'Mitigate acoustic fingerprinting in Firefox by enabling RFP or disabling background audio synthesis.',
-    compatibility: 'Audible sound output, Spotify, podcasts, music, and video playback quality are 100% unaffected. Acoustic noise only alters analytical DSP sample buffers queried by tracking scripts.',
-    configKey: 'privacy.resistFingerprinting = true (or CanvasBlocker audio spoofing)',
+    type: 'addon_and_config',
+    risk: 'Zero Risk (Noise Spoofing) / High Risk (If Disabled)',
+    title: 'Mitigate Acoustic Fingerprinting (Noise Spoofing vs Disabling)',
+    description: 'Acoustic fingerprinting measures subtle floating-point math differences in your audio hardware DSP. You can disguise this signature with zero-risk noise injection or by disabling WebAudio.',
+    compatibility: 'Safe Spoofing (CanvasBlocker Fake Readings): ZERO BREAKAGE. Music, Spotify, YouTube, podcasts, and video sound quality are 100% unaffected. | Disabling WebAudio (dom.webaudio.enabled = false): NOT RECOMMENDED because it will BREAK audio in browser games, web synthesizers, DAWs (BandLab), and sound visualizers.',
+    configKey: 'CanvasBlocker Add-on: Audio API -> "Fake Readings"',
     steps: [
-      'Enable privacy.resistFingerprinting = true in about:config (automatically injects audio noise).',
-      'If using CanvasBlocker, ensure "Audio API Protection" is toggled to "Fake Readings".'
-    ]
+      'Recommended (Zero Breakage): Install the "CanvasBlocker" extension from addons.mozilla.org.',
+      'In CanvasBlocker Settings, ensure "Audio API Protection" is set to "Fake Readings" (randomises DSP buffer math with zero audible degradation).',
+      'What NOT to do: Do NOT set dom.webaudio.enabled = false in about:config, as this breaks sound in web games, synthesizers, and interactive audio apps.'
+    ],
+    tip: 'Audio noise injection only affects analytical DSP render buffers queried by tracking scripts; it never degrades audible sound quality.'
   },
 
   fp_webgl: {
