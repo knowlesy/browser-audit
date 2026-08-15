@@ -3,9 +3,9 @@
  * SpectreCheck - Universal Browser Privacy & Hardening Auditor
  */
 
-import { FirefoxRemediation } from './firefox.js';
-import { BraveRemediation } from './brave.js';
-import { ChromiumRemediation } from './chromium.js';
+import { FirefoxRemediation } from './firefox.js?v=1.0.2';
+import { BraveRemediation } from './brave.js?v=1.0.2';
+import { ChromiumRemediation } from './chromium.js?v=1.0.2';
 
 export class RemediationEngine {
   /**

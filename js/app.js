@@ -3,15 +3,15 @@
  * Universal Browser Privacy & Hardening Auditor
  */
 
-import { EngineDetector } from './engine-detector.js';
-import { FingerprintingProbes } from './probes/fingerprinting.js';
-import { WebRTCProbes } from './probes/webrtc.js';
-import { TrackerProbes } from './probes/trackers.js';
-import { SignalProbes } from './probes/signals.js';
-import { HardwareProbes } from './probes/hardware.js';
-import { RemediationEngine } from './remediation/engine.js';
-import { PrivacyScorer } from './utils/scoring.js';
-import { ReportGenerator } from './utils/reporter.js';
+import { EngineDetector } from './engine-detector.js?v=1.0.2';
+import { FingerprintingProbes } from './probes/fingerprinting.js?v=1.0.2';
+import { WebRTCProbes } from './probes/webrtc.js?v=1.0.2';
+import { TrackerProbes } from './probes/trackers.js?v=1.0.2';
+import { SignalProbes } from './probes/signals.js?v=1.0.2';
+import { HardwareProbes } from './probes/hardware.js?v=1.0.2';
+import { RemediationEngine } from './remediation/engine.js?v=1.0.2';
+import { PrivacyScorer } from './utils/scoring.js?v=1.0.2';
+import { ReportGenerator } from './utils/reporter.js?v=1.0.2';
 
 class SpectreCheckApp {
   constructor() {
