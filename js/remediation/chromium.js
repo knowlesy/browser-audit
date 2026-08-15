@@ -144,11 +144,13 @@ export const ChromiumRemediation = {
   hw_drm_eme: {
     engineName: 'Chromium / Chrome / Edge',
     type: 'settings',
-    title: 'Configure Protected Content & DRM Permissions',
-    description: 'Control Widevine DRM identifier permissions.',
+    title: 'Configure Protected Content & DRM Permissions [Optional Tradeoff]',
+    description: 'Control Widevine DRM identifier permissions. Standard YouTube, Twitch, and web videos do NOT use DRM and will work normally. Paid streaming services (Netflix, Spotify, Prime Video) require DRM.',
     configKey: 'chrome://settings/content/protectedContent',
     steps: [
-      'Open chrome://settings/content/protectedContent.',
+      'Compatibility: Standard YouTube and Twitch video streaming will continue to work normally.',
+      'Service impact: Subscription services like Netflix and Spotify Web Player will be blocked.',
+      'To configure: Open chrome://settings/content/protectedContent.',
       'Choose "Don\'t allow sites to play protected content" if DRM streaming is not needed.'
     ]
   },

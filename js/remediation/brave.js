@@ -143,13 +143,14 @@ export const BraveRemediation = {
   hw_drm_eme: {
     engineName: 'Brave Browser',
     type: 'brave_settings',
-    title: 'Manage Widevine DRM in Brave',
-    description: 'Disable Google Widevine DRM if you do not stream protected content (Netflix/Spotify).',
+    title: 'Manage Widevine DRM in Brave [Optional Tradeoff]',
+    description: 'Control Google Widevine DRM extension. Free YouTube and Twitch do NOT require DRM and will work normally. Paid streaming services (Netflix, Spotify Web, Prime Video) require Widevine to play.',
     configKey: 'brave://settings/extensions -> Widevine: Disabled',
     steps: [
-      'Open brave://settings/extensions.',
-      'Toggle OFF "Widevine".',
-      'Restart the browser.'
+      'Compatibility: YouTube, Twitch, and standard web media will continue to work normally.',
+      'Service impact: Subscription platforms (Netflix, Spotify, Disney+) will not be able to play.',
+      'To toggle: Open brave://settings/extensions.',
+      'Toggle OFF "Widevine" and restart the browser.'
     ]
   },
 

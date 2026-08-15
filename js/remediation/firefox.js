@@ -153,13 +153,15 @@ export const FirefoxRemediation = {
   hw_drm_eme: {
     engineName: 'Firefox / Gecko',
     type: 'settings',
-    title: 'Disable Encrypted Media Extensions (DRM Content)',
-    description: 'Prevent playback of proprietary DRM streams and eliminate Widevine tracking identifiers.',
+    title: 'Disable Encrypted Media Extensions (DRM Content) [Optional Tradeoff]',
+    description: 'Eliminate Widevine DRM device identifiers. Compatibility notice: Standard YouTube, Twitch, and HTML5 video do NOT use DRM and continue to work normally. However, paid streaming services (Netflix, Spotify Web, Disney+, Prime Video) require DRM to play.',
     configKey: 'media.eme.enabled = false',
     steps: [
-      'Open Firefox Settings -> General.',
-      'Uncheck "Play DRM-controlled content".',
-      'Or in about:config, set media.eme.enabled = false.'
+      'Compatibility: Free YouTube, Twitch, and general web video will NOT break.',
+      'Service impact: Paid streaming (Netflix, Spotify Web Player, Disney+, Prime Video) will be unable to play protected content.',
+      'To disable: Open Firefox Settings (about:preferences) -> General.',
+      'Scroll to "Digital Rights Management (DRM) Content" and uncheck "Play DRM-controlled content".',
+      'Or in about:config, toggle media.eme.enabled to false.'
     ]
   },
 
