@@ -314,6 +314,23 @@ class SpectreCheckApp {
         `;
       }
 
+      let riskClass = 'risk-low';
+      if (rem.risk) {
+        const lowerRisk = rem.risk.toLowerCase();
+        if (lowerRisk.includes('zero')) riskClass = 'risk-zero';
+        else if (lowerRisk.includes('moderate')) riskClass = 'risk-moderate';
+        else if (lowerRisk.includes('high')) riskClass = 'risk-high';
+      }
+
+      let compatHtml = '';
+      if (rem.compatibility) {
+        compatHtml = `
+          <div class="remediation-compat-box">
+            <strong>Compatibility & Service Impact:</strong> ${this.escapeHtml(rem.compatibility)}
+          </div>
+        `;
+      }
+
       remediationHtml = `
         <div class="remediation-box">
           <div class="remediation-header">
@@ -321,9 +338,13 @@ class SpectreCheckApp {
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>
               Remediation: ${this.escapeHtml(rem.title)}
             </span>
-            <span class="remediation-badge">${this.escapeHtml(rem.engineName)}</span>
+            <div style="display:flex;align-items:center;gap:0.4rem;">
+              ${rem.risk ? `<span class="risk-tag ${riskClass}">${this.escapeHtml(rem.risk)}</span>` : ''}
+              <span class="remediation-badge">${this.escapeHtml(rem.engineName)}</span>
+            </div>
           </div>
           <p class="remediation-desc">${this.escapeHtml(rem.description)}</p>
+          ${compatHtml}
           ${configSnippetHtml}
           ${stepsHtml}
         </div>

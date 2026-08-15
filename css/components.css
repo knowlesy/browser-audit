@@ -257,6 +257,47 @@
   color: var(--ctp-subtext0);
 }
 
+.risk-tag {
+  font-size: 0.68rem;
+  font-weight: 700;
+  padding: 0.12rem 0.45rem;
+  border-radius: var(--radius-pill);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.risk-tag.risk-zero, .risk-tag.risk-low {
+  background: rgba(166, 227, 161, 0.15);
+  color: var(--ctp-green);
+  border: 1px solid rgba(166, 227, 161, 0.3);
+}
+
+.risk-tag.risk-moderate {
+  background: rgba(249, 226, 175, 0.15);
+  color: var(--ctp-yellow);
+  border: 1px solid rgba(249, 226, 175, 0.3);
+}
+
+.risk-tag.risk-high {
+  background: rgba(243, 139, 168, 0.15);
+  color: var(--ctp-red);
+  border: 1px solid rgba(243, 139, 168, 0.3);
+}
+
+.remediation-compat-box {
+  background: rgba(24, 24, 37, 0.7);
+  border-left: 3px solid var(--ctp-sapphire);
+  border-radius: var(--radius-sm);
+  padding: 0.5rem 0.75rem;
+  font-size: 0.8rem;
+  color: var(--ctp-subtext1);
+  line-height: 1.45;
+}
+
+.remediation-compat-box strong {
+  color: var(--ctp-text);
+}
+
 .remediation-desc {
   font-size: 0.84rem;
   color: var(--ctp-text);

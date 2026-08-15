@@ -65,7 +65,11 @@ export class ReportGenerator {
         }
 
         if (item.remediation) {
-          md += `> **Remediation (${item.remediation.engineName}):** ${item.remediation.title}\n`;
+          const riskTag = item.remediation.risk ? ` [${item.remediation.risk}]` : '';
+          md += `> **Remediation (${item.remediation.engineName})${riskTag}:** ${item.remediation.title}\n`;
+          if (item.remediation.compatibility) {
+            md += `> **Compatibility:** ${item.remediation.compatibility}\n`;
+          }
           if (item.remediation.configKey) {
             md += `> \`\`\`\n> ${item.remediation.configKey}\n> \`\`\`\n`;
           }
